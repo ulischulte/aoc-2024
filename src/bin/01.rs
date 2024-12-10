@@ -39,22 +39,14 @@ fn calculate_similarity_score(locations1: &[u32], locations2: &[u32]) -> u32 {
         .sum()
 }
 
-fn part1(locations: (Vec<u32>, Vec<u32>)) -> u32 {
-    calculate_total_distance_delta(locations.0, locations.1)
-}
-
-fn part2(locations: (Vec<u32>, Vec<u32>)) -> u32 {
-    calculate_similarity_score(&locations.0, &locations.1)
-}
-
 pub fn part_one(input: &str) -> Option<u32> {
     let locations = load_locations(input);
-    Some(part1(locations))
+    Some(calculate_total_distance_delta(locations.0, locations.1))
 }
 
 pub fn part_two(input: &str) -> Option<u32> {
     let locations = load_locations(input);
-    Some(part2(locations))
+    Some(calculate_similarity_score(&locations.0, &locations.1))
 }
 
 #[cfg(test)]
