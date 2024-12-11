@@ -1,8 +1,8 @@
-use regex::{Regex, Captures};
+use regex::Regex;
 
 advent_of_code::solution!(3);
 
-fn process_line(captures: regex::CaptureMatches, enabled: &mut bool) -> u32 {
+fn process_instructions(captures: regex::CaptureMatches, enabled: &mut bool) -> u32 {
     captures
         .filter_map(|capture| {
             let part = &capture[0];
@@ -15,14 +15,14 @@ fn process_line(captures: regex::CaptureMatches, enabled: &mut bool) -> u32 {
                     *enabled = false;
                     None
                 }
-                _ if *enabled => calculate_multiplication(&capture[2], &capture[3]),
+                _ if *enabled => multiply_capture(&capture[2], &capture[3]),
                 _ => None,
             }
         })
         .sum()
 }
 
-fn calculate_multiplication(x_cap: &str, y_cap: &str) -> Option<u32> {
+fn multiply_capture(x_cap: &str, y_cap: &str) -> Option<u32> {
     let x = x_cap.parse::<u32>().unwrap();
     let y = y_cap.parse::<u32>().unwrap();
     Some(x * y)
@@ -30,16 +30,20 @@ fn calculate_multiplication(x_cap: &str, y_cap: &str) -> Option<u32> {
 
 pub fn part_one(input: &str) -> Option<u32> {
     let re = Regex::new(r"mul\((\d{1,3}),(\d{1,3})\)").unwrap();
-    Some(re.captures_iter(input).map(|mul| {
-        calculate_multiplication(&mul[1], &mul[2]).unwrap()
-    }).sum())
+    Some(
+        re.captures_iter(input)
+            .map(|capture| multiply_capture(&capture[1], &capture[2]).unwrap())
+            .sum(),
+    )
 }
 
 pub fn part_two(input: &str) -> Option<u32> {
     let regex = Regex::new(r"(mul\((\d{1,3}),(\d{1,3})\)|don't\(\)|do\(\))").unwrap();
     let mut enabled = true;
-    let mul_total = process_line(regex.captures_iter(input), &mut enabled);
-    Some(mul_total)
+    Some(process_instructions(
+        regex.captures_iter(input),
+        &mut enabled,
+    ))
 }
 
 #[cfg(test)]
