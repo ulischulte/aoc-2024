@@ -15,27 +15,18 @@ const DIRECTIONS: [(i32, i32); 8] = [
 ];
 
 fn count_xmas_in_matrix(matrix: &Array2<char>) -> u32 {
-    let word_chars: Vec<char> = "XMAS".chars().collect();
+    let word_chars: &[char] = &['X', 'M', 'A', 'S'];
     let mut occurrences = 0;
 
     for (row, col) in iproduct!(0..matrix.nrows(), 0..matrix.ncols()) {
         if matrix[[row, col]] == word_chars[0] {
-            occurrences += check_all_directions(matrix, &word_chars, row, col);
+            occurrences += DIRECTIONS
+                .iter()
+                .filter(|&&(dx, dy)| is_word_in_direction(matrix, word_chars, row, col, dx, dy))
+                .count() as u32;
         }
     }
     occurrences
-}
-
-fn check_all_directions(
-    matrix: &Array2<char>,
-    word_chars: &[char],
-    start_row: usize,
-    start_col: usize,
-) -> u32 {
-    DIRECTIONS
-        .iter()
-        .filter(|&&(dx, dy)| is_word_in_direction(matrix, word_chars, start_row, start_col, dx, dy))
-        .count() as u32
 }
 
 fn is_word_in_direction(
@@ -70,12 +61,12 @@ fn count_x_mas_in_matrix(matrix: &Array2<char>) -> u32 {
 }
 
 fn is_mas_x(matrix: &Array2<char>, row: usize, col: usize) -> bool {
+    fn is_valid_x_mas_diagonal(first_char: char, last_char: char) -> bool {
+        first_char == 'M' && last_char == 'S' || first_char == 'S' && last_char == 'M'
+    }
+
     is_valid_x_mas_diagonal(matrix[[row - 1, col - 1]], matrix[[row + 1, col + 1]])
         && is_valid_x_mas_diagonal(matrix[[row - 1, col + 1]], matrix[[row + 1, col - 1]])
-}
-
-fn is_valid_x_mas_diagonal(first_char: char, last_char: char) -> bool {
-    first_char == 'M' && last_char == 'S' || first_char == 'S' && last_char == 'M'
 }
 
 fn to_char_matrix(input: &str) -> Array2<char> {
