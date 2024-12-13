@@ -12,7 +12,6 @@ fn parse_location_line(line: &str) -> (u32, u32) {
 fn load_locations(input: &str) -> (Vec<u32>, Vec<u32>) {
     let (location_list1, location_list2): (Vec<u32>, Vec<u32>) = input
         .lines()
-        .into_iter()
         .map(|line| parse_location_line(&line))
         .unzip();
     (location_list1, location_list2)

@@ -37,16 +37,15 @@ fn is_word_in_direction(
     dx: i32,
     dy: i32,
 ) -> bool {
+    fn is_position_in_bounds(x: i32, y: i32, rows: usize, cols: usize) -> bool {
+        x >= 0 && y >= 0 && x < rows as i32 && y < cols as i32
+    }
     word_chars.iter().enumerate().all(|(i, &ch)| {
         let x = start_row as i32 + dx * i as i32;
         let y = start_col as i32 + dy * i as i32;
         is_position_in_bounds(x, y, matrix.nrows(), matrix.ncols())
             && matrix[[x as usize, y as usize]] == ch
     })
-}
-
-fn is_position_in_bounds(x: i32, y: i32, rows: usize, cols: usize) -> bool {
-    (0..rows as i32).contains(&x) && (0..cols as i32).contains(&y)
 }
 
 fn count_x_mas_in_matrix(matrix: &Array2<char>) -> u32 {
@@ -70,19 +69,27 @@ fn is_mas_x(matrix: &Array2<char>, row: usize, col: usize) -> bool {
 }
 
 fn to_char_matrix(input: &str) -> Array2<char> {
-    let rows: Vec<&str> = input.lines().collect();
-    let row_count = rows.len();
-    let col_count = rows[0].len();
-    let chars: Vec<char> = rows.iter().flat_map(|line| line.chars()).collect();
+    let rows = input.lines();
+    let row_count = rows.clone().count();
+    let col_count = rows.clone().next().map_or(0, |line| line.len());
+
+    // Reserve the storage space directly to avoid reallocating
+    let mut chars = Vec::with_capacity(row_count * col_count);
+    for line in rows {
+        chars.extend(line.chars());
+    }
+
     Array2::from_shape_vec((row_count, col_count), chars).unwrap()
 }
 
 pub fn part_one(input: &str) -> Option<u32> {
-    Some(count_xmas_in_matrix(&to_char_matrix(input)))
+    let char_matrix = to_char_matrix(input);
+    Some(count_xmas_in_matrix(&char_matrix))
 }
 
 pub fn part_two(input: &str) -> Option<u32> {
-    Some(count_x_mas_in_matrix(&to_char_matrix(input)))
+    let char_matrix = to_char_matrix(input);
+    Some(count_x_mas_in_matrix(&char_matrix))
 }
 
 #[cfg(test)]

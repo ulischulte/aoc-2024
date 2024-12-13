@@ -1,21 +1,23 @@
+use rayon::prelude::*;
 use regex::Regex;
 
 advent_of_code::solution!(3);
 
-fn process_instructions(captures: regex::CaptureMatches, enabled: &mut bool) -> u32 {
+fn process_instructions(captures: regex::CaptureMatches) -> u32 {
+    let mut enabled = true;
     captures
         .filter_map(|capture| {
             let part = &capture[0];
             match part {
                 "do()" => {
-                    *enabled = true;
+                    enabled = true;
                     None
                 }
                 "don't()" => {
-                    *enabled = false;
+                    enabled = false;
                     None
                 }
-                _ if *enabled => multiply_capture(&capture[2], &capture[3]),
+                _ if enabled => multiply_capture(&capture[2], &capture[3]),
                 _ => None,
             }
         })
@@ -29,21 +31,20 @@ fn multiply_capture(x_cap: &str, y_cap: &str) -> Option<u32> {
 }
 
 pub fn part_one(input: &str) -> Option<u32> {
-    let re = Regex::new(r"mul\((\d{1,3}),(\d{1,3})\)").unwrap();
+    let regex = Regex::new(r"mul\((\d{1,3}),(\d{1,3})\)").unwrap();
     Some(
-        re.captures_iter(input)
-            .map(|capture| multiply_capture(&capture[1], &capture[2]).unwrap())
+        regex
+            .captures(input)
+            .par_iter()
+            .filter_map(|capture| multiply_capture(&capture[1], &capture[2]))
             .sum(),
     )
 }
 
 pub fn part_two(input: &str) -> Option<u32> {
     let regex = Regex::new(r"(mul\((\d{1,3}),(\d{1,3})\)|don't\(\)|do\(\))").unwrap();
-    let mut enabled = true;
-    Some(process_instructions(
-        regex.captures_iter(input),
-        &mut enabled,
-    ))
+
+    Some(process_instructions(regex.captures_iter(input)))
 }
 
 #[cfg(test)]
