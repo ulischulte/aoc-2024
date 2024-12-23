@@ -1,4 +1,3 @@
-use rayon::prelude::*;
 use regex::Regex;
 
 advent_of_code::solution!(3);
@@ -33,10 +32,8 @@ fn multiply_capture(x_cap: &str, y_cap: &str) -> Option<u32> {
 pub fn part_one(input: &str) -> Option<u32> {
     let regex = Regex::new(r"mul\((\d{1,3}),(\d{1,3})\)").unwrap();
     Some(
-        regex
-            .captures(input)
-            .par_iter()
-            .filter_map(|capture| multiply_capture(&capture[1], &capture[2]))
+        regex.captures_iter(input)
+            .map(|capture| multiply_capture(&capture[1], &capture[2]).unwrap())
             .sum(),
     )
 }
